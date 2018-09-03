@@ -1,4 +1,4 @@
-# Regresi√≥n log√≠stica {#logistica}
+# Regresion logistica {#logistica}
 
 ```{r, include = FALSE}
 library(tidyverse)
@@ -6,13 +6,13 @@ cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2"
 theme_set(theme_minimal())
 ```
 
-## El problema de clasificaci√≥n
+## El problema de clasificacion
 
-Una variabla $G$ **categ√≥rica** o **cualitativa** toma valores que no
-son num√©ricos. Por ejemplo, si $G$ denota el estado del contrato de celular
-de un cliente dentro de un a√±o, podr√≠amos tener $G\in \{ activo, cancelado\}$.
+Una variabla $G$ **categorica** o **cualitativa** toma valores que no
+son numÈricos. Por ejemplo, si $G$ denota el estado del contrato de celular
+de un cliente dentro de un aÒo, podrÌamos tener $G\in \{ activo, cancelado\}$.
 
-En un **problema de clasificaci√≥n** buscamos predecir una variable respuesta
+En un **problema de clasificaciÛn** buscamos predecir una variable respuesta
 categ√≥rica $G$ en funci√≥n de otras variables de entrada
 $X=(X_1,X_2,\ldots, X_p)$.
 
@@ -31,7 +31,7 @@ Tenemos que las entradas $X_j$ para $j=1,2,\ldots, 256$ son valores de cada pixe
 - En reconocimiento de im√°genes quiza tenemos que $G$ pertenece a un conjunto
 que t√≠picamente contiene miles de valores (manzana, √°rbol, pluma, perro, coche, persona,
 cara, etc.). Las $X_j$ son valores de pixeles de la imagen para tres canales
-(rojo, verde y azul). Si las im√°genes son de 100x100, tendr√≠amos 30,000 variables
+(rojo, verde y azul). Si las im·genes son de 100x100, tendr√≠amos 30,000 variables
 de entrada.
 
 
@@ -162,7 +162,7 @@ library(tidyverse)
 library(kknn) # para hacer vecinos m√°s cercanos
 simular_impago <- function(n = 500){
     # suponemos que los valores de x est√°n concentrados en valores bajos,
-    # quiz√° la manera en que los cr√©ditos son otorgados
+    # quiza la manera en que los creditos son otorgados
     x <- pmin(rexp(n, 1 / 40), 100)
     # las probabilidades de estar al corriente:
     probs <- p_1(x)
@@ -288,7 +288,7 @@ ggplot(diabetes_ent, aes(x = bmi, y= as.numeric(type=='Yes'), colour = type)) +
   geom_point()
 ```
 
-Usamos $20$ vecinos m√°s cercanos para estimar $p_g(x)$:
+Usamos $20$ vecinos mas cercanos para estimar $p_g(x)$:
 
 
 ```{r, fig.width=5, fig.asp=0.7}
@@ -307,7 +307,7 @@ ggplot(diabetes_ent, aes(x = bmi, y= as.numeric(type=='Yes'), colour = type)) +
 
 
 
-## Error para modelos de clasificaci√≥n
+## Error para modelos de clasificacion
 
 En regresi√≥n, vimos que la p√©rdida cuadr√°tica era una buena opci√≥n para ajustar
 modelos (descenso en gradiente, por ejemplo), y tambi√©n para evaluar su desempe√±o.
@@ -458,16 +458,16 @@ siempre est√©n en $[\epsilon, 1-\epsilon]$ para $\epsilon>0$ chica.
 
 
 
-### Error de clasificaci√≥n y funci√≥n de p√©rdida 0-1
+### Error de clasificaciÛn y funciÛn de pÈrdida 0-1
 
-Otra  medida com√∫n para medir el error de un clasificador es
+Otra  medida com˙n para medir el error de un clasificador es
 el *error de clasificaci√≥n*, que tambi√©n llamamos *probabilidad de clasificaci√≥n
 incorrecta*, o error bajo p√©rdida 0-1. 
 
 ```{block2, type ='comentario'}
 Si $\hat{G}$ es un clasificador (que puede
 ser construido a partir de probabilidades de clase),
-decimos que su **error de clasificaci√≥n** es
+decimos que su **error de clasificacion** es
 
 $$P(\hat{G}\neq G)$$
 
@@ -573,26 +573,25 @@ knitr::include_graphics(path = c("figuras/clas_lineal.png", "figuras/clas_noline
 ```
 
 
-### Regresi√≥n log√≠stica simple
+### RegresiÛn logÌstica simple
 
-Vamos a construir el modelo de regresi√≥n log√≠stica (binaria) 
-para una sola entrada. Suponemos que
-tenemos una sola entrada $X_1$, y que $G\in\{1,2\}$. 
-Nos convendr√° crear una nueva variable $Y$ dada por
+Vamos a construir el modelo de regresiÛn logÌstica (binaria) 
+para una sola entrada. Suponemos que tenemos una sola entrada $X_1$, y que $G\in\{1,2\}$. 
+Nos convendr· crear una nueva variable $Y$ dada por
 $Y=1$ si $G=2$, $Y=0$ si $G=1$. 
 
-N√≥tese que intentar estimar las probabilidades de clase $p_1(x)$ de forma lineal con
+NÛtese que intentar estimar las probabilidades de clase $p_1(x)$ de forma lineal con
 
 $$p_1(x)=\beta_0+\beta_1 x_1$$
 tiene el defecto de que el lado derecho puede producir valores fuera
-de $[0,1]$. La idea es entonces aplicar una funci√≥n $h$ simple
+de $[0,1]$. La idea es entonces aplicar una funciÛn $h$ simple
 que transforme la recta real al intervalo $[0,1]:$
 $$p_1(x) = h(\beta_0+\beta_1 x_1),$$
-donde $h$ es una funci√≥n que toma valores en $[0,1]$. ¬øC√∫al es la funci√≥n
-m√°s simple que hace esto?
+donde $h$ es una funciÛn que toma valores en $[0,1]$. øC˙al es la funciÛn
+m·s simple que hace esto?
 
-### Funci√≥n log√≠stica
- Comenzamos con el caso m√°s simple, poniendo
+### FunciÛn logÌstica
+ Comenzamos con el caso m·s simple, poniendo
 $\beta_0=0$ y $\beta_1=1$, de modo que
 $$p_1(x)=h(x).$$
 ¬øC√≥mo debe ser $h$ para garantizar que $h(x)$ est√° entre 0 y 1 para toda $x$?
@@ -602,41 +601,41 @@ Hay varias posibilidades, pero una de las m√°s simples es tomar (ver gr√°fica
 al margen):
 
 ```{block2, type='comentario'}
-La funci√≥n log√≠stica est√° dada por
+La funciÛn logÌstica est· dada por
 $$h(x)=\frac{e^x}{1+e^x}$$
 ``` 
-
+NOTE: El calsificador de Bayes minimisa el error de clasificaciÛn
 ```{r}
 h <- function(x){exp(x)/(1+exp(x)) }
 ggplot(data_frame(x = seq(-6, 6, 0.01)), aes(x = x)) + stat_function(fun = h)
 ```
 
 
-Esta funci√≥n comprime adecuadamente (para nuestros prop√≥sitos) 
+Esta funcion comprime adecuadamente (para nuestros propÛsitos) 
 el rango de todos los reales dentro del intervalo $[0,1]$. Si aplicamos
 al predictor lineal que consideramos, obtenemos:
 
 
 ```{block2, type='comentario'}
-El modelo de regresi√≥n log√≠stica simple est√° dado por
+El modelo de regresiÛn logÌstica simple est· dado por
 $$p_1(x)=p_1(x;\beta)= h(\beta_0+\beta_1x_1)= \frac{e^{\beta_0+\beta_1x_1}}{1+ e^{\beta_0+\beta_1x_1}},$$
 y $$p_0(x)=p_0(x;\beta)=1-p_1(x;\beta),$$
 donde $\beta=(\beta_0,\beta_1)$.
 ```
 
-Este es un modelo param√©trico con 2 par√°metros.
+Este es un modelo paramÈtrico con 2 par·metros.
 
 #### Ejercicio {-}
 
-- Demostrar que, si $p_1(x)$ est√° dado como en la ecuaci√≥n anterior, entonces
-tambi√©n podemos escribir:
+- Demostrar que, si $p_1(x)$ est· dado como en la ecuaciÛn anterior, entonces
+tambiÈn podemos escribir:
 $$p_0(x)=\frac{1}{1+e^{\beta_0+\beta_1x_1}}.$$
 
 - Graficar las funciones $p_1(x;\beta)$ para distintos
 valores de $\beta_0$ y $\beta_1$.
 
 #### Ejemplo {-}
-En nuestro ejemplo, ten√≠amos el siguiente ajuste con k-vecinos m√°s cercanos:
+En nuestro ejemplo, tenÌamos el siguiente ajuste con k-vecinos m·s cercanos:
 
 ```{r, fig.width = 5, fig.asp = 0.7}
 graf_data <- data_frame(x = seq(0,100, 1))
@@ -647,12 +646,12 @@ graf_verdadero <- data_frame(x = 0:100, p_1 = p_1(x))
 graf_1 + 
     geom_line(data = graf_data, aes(y = p_1), colour = 'red', size=1.2) +
     geom_line(data = graf_verdadero, aes(y = p_1)) +
-    ylab('Probabilidad al corriente') + xlab('% cr√©dito usado')
+    ylab('Probabilidad al corriente') + xlab('% crÈdito usado')
 ```
 
 Ahora intentaremos ajustar a mano (intenta cambiar
 las betas para p_mod_1 y p_mod_2 en el ejemplo de abajo) 
-algunos modelos log√≠sticos para las probabilidades
+algunos modelos logÌsticos para las probabilidades
 de clase:
 
 ```{r, fig.width = 5, fig.asp = 0.7}
@@ -663,7 +662,7 @@ p_logistico <- function(beta_0, beta_1){
     h(z)
   }
 }
-p_mod_1 <- p_logistico(-20, 1)
+p_mod_1 <- p_logistico(-20, 0.5)
 p_mod_2 <- p_logistico(3, -0.04)
 graf_data <- graf_data %>% 
   mutate(p_mod_1 = p_mod_1(x), p_mod_2 = p_mod_2(x))
@@ -671,10 +670,10 @@ graf_1 +
   geom_line(data = graf_data, aes(y = p_mod_2), colour = 'red', size=1.2) +
     geom_line(data = graf_data, aes(y = p_mod_1), colour = 'orange', size=1.2) +
   geom_line(data = graf_verdadero, aes(y = p_1)) +
-  ylab('Probabilidad al corriente') + xlab('% cr√©dito usado')
+  ylab('Probabilidad al corriente') + xlab('% crÈdito usado')
 ```
 
-Podemos usar tambi√©n la funci√≥n glm de R para ajustar los coeficientes:
+Podemos usar tambiÈn la funciÛn glm de R para ajustar los coeficientes:
 
 ```{r}
 mod_1 <- glm(g==1 ~ x, data = dat_ent, family = 'binomial')
@@ -698,13 +697,13 @@ primero combinamos las variables linealmente usando pesos $\beta$, y desp√∫es
 comprimimos a $[0,1]$ usando la funci√≥n log√≠stica:
 
 ```{block2, type='comentario'}
-El modelo de regresi√≥n log√≠stica est√° dado por
+El modelo de regresiÛn logÌstica est· dado por
 $$p_1(x)=p_1(x;\beta)= h(\beta_0+\beta_1x_1 + \beta_2x_2 +\cdots + \beta_p x_p),$$
 y $$p_0(x)=p_0(x;\beta)=1-p_1(x;\beta),$$
 donde $\beta=(\beta_0,\beta_1, \ldots, \beta_p)$.
 ```
 
-## Aprendizaje de coeficientes para regresi√≥n log√≠stica (binomial).
+## Aprendizaje de coeficientes para regresiÛn logÌstica (binomial).
 
 
 Ahora veremos c√≥mo aprender los coeficientes con una muestra de entrenamiento. La idea
@@ -739,17 +738,17 @@ $$D(\beta) = -2\sum_{i=1}^N y^{(i)} \log(p_{1} (x^{(i)})) + (1-y^{(i)}) \log(p_{
 Para hacer descenso en gradiente, necesitamos encontrar $\frac{\partial D}{\beta_j}$
 para $j=1,2,\ldots,p$.
 
-Igual que en regresi√≥n lineal, comenzamos por calcular la derivada de un t√©rmino:
+Igual que en regresiÛn lineal, comenzamos por calcular la derivada de un tÈrmino:
 
 $$D^{(i)} (\beta) = y^{(i)} \log(p_{1} (x^{(i)})) + (1-y^{(i)}) \log(1-p_{1} (x^{(i)}))$$
 
 
-Calculamos primero las derivadas de $p_1 (x^{(i)};\beta)$ (demostrar la siguiente ecuaci√≥n):
+Calculamos primero las derivadas de $p_1 (x^{(i)};\beta)$ (demostrar la siguiente ecuaciÛn):
 $$\frac{\partial  p_1}{\partial \beta_0} = {p_1(x^{(i)})(1-p_1(x^{(i)}))},$$
 y 
 $$\frac{\partial  p_1}{\partial \beta_j} = p_1(x^{(i)})(1-p_1(x^{(i)}))x_j^{(i)},$$
 
-As√≠ que
+AsÌ que
 \begin{align*}
 \frac{\partial D^{(i)}}{\partial \beta_j} &= \frac{y^{(i)}}{(p_1(x^{(i)}))}\frac{\partial  p_1}{\partial \beta_j} -
 \frac{1- y^{(i)}}{(1-p_1(x^{(i)}))}\frac{\partial  p_1}{\partial \beta_j} \\
@@ -757,7 +756,7 @@ As√≠ que
  & = \left ( y^{(i)} - p_1(x^{(i)}) \right ) x_j^{(i)} \\ 
 \end{align*}
 
-para $j=0,1,\ldots,p$, usando la convenci√≥n de $x_0^{(i)}=1$. Podemos sumar
+para $j=0,1,\ldots,p$, usando la convenciÛn de $x_0^{(i)}=1$. Podemos sumar
 ahora sobre la muestra de entrenamiento para obtener
 
 
@@ -774,7 +773,7 @@ $j=0,1,\ldots, p$, donde fijamos $x_0^{(i)}=1$.
 ```
 
 
-Podr√≠amos usar las siguientes implementaciones, que representan cambios
+PodrÌamos usar las siguientes implementaciones, que representan cambios
 menores de lo que hicimos en regresi√≥n lineal. En primer lugar,
 escribimos la funci√≥n que calcula la devianza. Podr√≠amos poner:
 
@@ -789,8 +788,8 @@ devianza_calc_simple <- function(x, y){
 ```
 
 
-***Observaci√≥n** 
-Sin embargo, podemos hacer una simplificaci√≥n para tener mejor desempe√±o y estabilidad.
+***ObservaciÛn** 
+Sin embargo, podemos hacer una simplificaciÛn para tener mejor desempeÒo y estabilidad.
 Observamos que 
 $$\log (p_1(x;\beta)) = \log\frac{ e^{x^t \beta}}{1+ e^{x^t\beta}} =
 x^t\beta - \log Z$$
@@ -800,7 +799,7 @@ $$\log(p_0(x;\beta)) = \log\frac{ 1}{1+ e^{x^t\beta}} = - \log Z$$
 De modo que 
 $$y\log(p_1(x;\beta)) + (1- y)\log(p_0(x;\beta)) = yx^t\beta - \log Z= yx^t\beta - \log (1+e^{x^t\beta})$$
 
-As√≠ que podemos escribir:
+AsÌ que podemos escribir:
 
 ```{r}
 devianza_calc <- function(x, y){
@@ -834,7 +833,7 @@ descenso <- function(n, z_0, eta, h_deriv){
 ```
 
 #### Ejemplo {-}
-Probemos nuestros c√°lculos con el ejemplo de 1 entrada de tarjetas de cr√©dito.
+Probemos nuestros c·lculos con el ejemplo de 1 entrada de tarjetas de crÈdito.
 
 ```{r}
 dat_ent$y <- as.numeric(dat_ent$g==1)
@@ -844,7 +843,7 @@ grad <- grad_calc(dat_ent[, 'x_s', drop = FALSE], dat_ent$y)
 grad(c(0,1))
 grad(c(0.5,-0.1))
 ```
-Verificamos c√°lculo de gradiente:
+Verificamos c·lculo de gradiente:
 ```{r}
 (devianza(c(0.5+0.0001,-0.1)) - devianza(c(0.5,-0.1)))/0.0001
 (devianza(c(0.5,-0.1+0.0001)) - devianza(c(0.5,-0.1)))/0.0001
@@ -860,6 +859,8 @@ grad(iteraciones[nrow(iteraciones), ])
 ```
 
 Comparamos con glm:
+NOTE: glm utiliza Newton Rapson para llegar al mÌnimo, segundas derivadas.
+Para pocas varialibles se utiliza glm, es m·s r·pido 
 ```{r}
 mod_1 <- glm(y~x_s, data=dat_ent, family = 'binomial') 
 coef(mod_1)
@@ -867,42 +868,47 @@ mod_1$deviance
 devianza(iteraciones[200,])
 ```
 
-N√≥tese que esta devianza est√° calculada sin dividirentre el n√∫mero de casos. Podemos calcular la devianza promedio de entrenamiento haciendo:
+NÛtese que esta devianza est· calculada sin dividirentre el n˙mero de casos. Podemos calcular la devianza promedio de entrenamiento haciendo:
 
 ```{r}
 devianza(iteraciones[200,])/nrow(dat_ent)
 ```
 
+Estar en su media ~ evaluar h(beta_0)
 
+NOTE: Revisar el libreo de 
+RegresiÛn - Gelman, Hill
 
-#### M√°xima verosimilitud {-}
+log odds logit 
 
-Es f√°cil ver que este m√©todo de estimaci√≥n de los coeficientes (minimizando la
-devianza de entrenamiento) es el m√©todo de m√°xima verosimilitud.  La verosimilitud
-de la muestra de entrenamiento est√° dada por:
+#### M·xima verosimilitud {-}
+
+Es f·cil ver que este mÈtodo de estimaciÛn de los coeficientes (minimizando la
+devianza de entrenamiento) es el mÈtodo de m·xima verosimilitud.  La verosimilitud
+de la muestra de entrenamiento est· dada por:
 
  $$L(\beta) =\prod_{i=1}^N p_{y^{(i)}} (x^{(i)})$$
 Y la log verosimilitud es
 
  $$l(\beta) =\sum_{i=1}^N \log(p_{y^{(i)}} (x^{(i)})).$$
 
-As√≠ que ajustar el modelo minimizando la expresi√≥n
+AsÌ que ajustar el modelo minimizando la expresiÛn
 \@ref(eq:devianza)
 es los mismo que hacer m√°xima verosimilitud (condicional a los valores de $x$).
 
 
 
-#### Normalizaci√≥n {-}
-Igual que en regresi√≥n lineal, en regresi√≥n log√≠stica conviene normalizar
+#### NormalizaciÛn {-}
+Igual que en regresiÛn lineal, en regresiÛn logÌstica conviene normalizar
 las entradas antes de ajustar el modelo
 
-#### Desempe√±o de regresi√≥n log√≠stica como m√©todo de aprendizaje {-}
-Igual que en regresi√≥n lineal, regresi√≥n log√≠stica supera a m√©todos
-m√°s sofisticados o nuevos en numerosos ejemplos. Las razones son similares:
+#### DesempeÒo de regresiÛn logÌstica como mÈtodo de aprendizaje {-}
+Igual que en regresiÛn lineal, regresiÛn logÌstica supera a mÈtodos
+m·s sofisticados o nuevos en numerosos ejemplos. Las razones son similares:
 la rigidez de regresi√≥n log√≠stica es una fortaleza cuando la estructura
 lineal es una buena aproximaci√≥n.
 
-#### Soluci√≥n anal√≠tica
+#### SoluciÛn analÌtica
 El problema de regresi√≥n log√≠stica no tiene soluci√≥n anal√≠tica. Paquetes
 como *glm* utilizan m√©todos num√©ricos (Newton-Raphson para regresi√≥n log√≠stica,
 por ejemplo).
@@ -962,13 +968,13 @@ h(coeficientes[1] + coeficientes[2]) - h(coeficientes[1])
 es decir, la probabilidad de manenterse al corriente baja 19 puntos porcentuales,
 de 85\% a 67%
 
-**Ojo**: En regresi√≥n lineal, las variables contribuyen independientemente
-de otras al predictor. Eso no pasa en regresi√≥n log√≠stica debido a la no linealidad
-introducida por la funci√≥n log√≠stica $h$. Por ejemplo, imaginemos el modelo:
+**Ojo**: En regresiÛn lineal, las variables contribuyen independientemente
+de otras al predictor. Eso no pasa en regresiÛn logÌstica debido a la no linealidad
+introducida por la funciÛn logÌstica $h$. Por ejemplo, imaginemos el modelo:
 
 $$p(z) = h(0.5 + 0.2 x_1 -0.5 x_2 + 0.7x_3),$$
 y suponemos las entradas normalizadas.
-Si todas las variables est√°n en su media, la probabilidad de clase 1 es
+Si todas las variables est·n en su media, la probabilidad de clase 1 es
 ```{r}
 h(0.5)
 ```
@@ -993,7 +999,7 @@ h(0.5+ 0.2 + 0.5*1) - h(0.5 + 0.5*1)
 
 ## Ejercicio: datos de diabetes
 
-Ya est√°n divididos los datos en entrenamiento y prueba
+Ya est·n divididos los datos en entrenamiento y prueba
 
 ```{r, message=FALSE, warning=FALSE}
 diabetes_ent <- as_data_frame(MASS::Pima.tr)
@@ -1040,7 +1046,7 @@ diabetes_coef <- data_frame(variable = c('Intercept',colnames(x_ent)), coef = it
 diabetes_coef
 ```
 
-Ahora calculamos devianza de prueba y error de clasificaci√≥n:
+Ahora calculamos devianza de prueba y error de clasificaciÛn:
 
 ```{r}
 x_prueba <- diabetes_pr_s %>% select(age:skin) %>% as.matrix

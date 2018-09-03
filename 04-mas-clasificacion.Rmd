@@ -1,4 +1,4 @@
-# Más sobre problemas de clasificación
+# Mas sobre problemas de clasificacion
 
 ```{r, include = FALSE}
 library(tidyverse)
@@ -6,8 +6,8 @@ cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2"
 theme_set(theme_minimal())
 ```
 
-En esta parte presentamos técnicas adicionales para evaluar el 
-desempeño de un modelo. En la parte anterior vimos que
+En esta parte presentamos tecnicas adicionales para evaluar el 
+desempe�o de un modelo. En la parte anterior vimos que
 
 - La **devianza** es una buena medida para ajustar y evaluar el desempeño de un modelo y 
 comparar modelos, y utiliza las probabilidades de clase. Sin embargo, es una medida de dificil de interpretar en cuanto 
