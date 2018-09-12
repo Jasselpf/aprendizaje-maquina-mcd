@@ -29,7 +29,7 @@ datos_titanic <- read_csv("./tarea_4_datos/train.csv")
 En este caso, queremos predecir la variable *Survived* en términos del resto.
 Para simiplificar el ejericicio, 
 
- - solo usaremos alguna de las variables,
+ - solo usaremos algunas de las variables,
  - ignoramos datos faltantes en la variable edad
 
 ```{r}
@@ -102,8 +102,13 @@ abordó en cherbourg). Ajusta el tamaño de paso y checa convergencia
 x_ent_1 <- x_ent[ , "cherbourg", drop = FALSE] # drop=false es para no convertir en vector
 devianza_ent <- devianza_calc(x_ent_1, y_ent)
 grad_ent <- grad_calc(x_ent_1, y_ent)
+
 ## termina esta línea para descenso en gradiente
-z <- 
+z <- descenso(130,c(-0.2,0.2),0.005,grad_ent)
+z[101:130,]
+#grad_ent(0.2)
+
+glm(Survived ~ cherbourg, data = entrena, family = "binomial" )
 ```
 
 2. Calcula ahora la devianza de prueba de este modelo
@@ -112,19 +117,21 @@ z <-
 x_pr_1 <-  x_pr[ , "cherbourg", drop = FALSE]
 devianza_pr <- devianza_calc(x_pr_1, y_pr)
 # termina esta línea
-devianza_pr()
+devianza_ent(z[130,]) ## 667.5147 -- devianza de entrenamiento
+devianza_ent(z[130,])/nrow(x_ent) ## 1.30374
+devianza_pr(z[130,]) ## 266.9904 -- devianza de prueba
+devianza_pr(z[130,])/nrow(x_pr) ## 1.334952
 ```
 
 3. Para este modelo simple, calcula la probabilidad estimada por el modelo
-de sobrevivir 
-para una persona que embarcó en cherbourg y una que no:
+de sobrevivir para una persona que embarcó en cherbourg y una que no:
 
 ```{r}
 # Rellena:
 # probabilidad sobrevivir si no embarcó en Cherbourg
-
+p_beta(0,z[130,])
 # probabilidad si embarcó  en Cherbourg
-
+p_beta(1,z[130,])
 ```
 
 
@@ -139,20 +146,37 @@ abordó en cherbourg). Ajusta el tamaño de paso y checa convergencia
 devianza_ent <- devianza_calc(x_ent, y_ent)
 grad_ent <- grad_calc(x_ent, y_ent)
 ## termina esta línea
-z <- descenso( )
+z <- descenso(500,c(0.2,-2,-1,0.2,0.2,0.2),0.003,grad_ent)
+colnames(z) <- colnames(entrena)
+tail(z)
+#matplot(z)
 ```
 
 2. Calcula ahora la devianza de prueba de este modelo
 
 ```{r}
 devianza_pr <- devianza_calc(x_pr, y_pr)
-devianza_pr( )
+devianza_pr(z[500,] ) ## 155.7327 -- devianza de prueba (6 variables)
+devianza_pr(z[500,])/nrow(x_pr) ## 0.7786637 (6 variables)
+devianza_ent(z[500,]) ## 488.6215 -- devianza entrenamiento (6 variables)
+devianza_ent(z[500,])/nrow(x_ent) ## 0.9543389 --devianza entrenamiento (6 variables)
 ```
 
 
 3. Calcula la probabidad estimada de que un hombre con boleto de 3a clase, de 60 años,
 que abordó en southampton sobreviva. Repite para una mujer con boleto de 1a clase, de 60
 años, que abordó en southampton
+
+```{r}
+x_h_1 <- cbind(0,1,0,1,0)
+x_h_2 <- cbind(1/3,1,0,1,0)
+x_h_3 <- cbind(2/3,1,0,1,0)
+x_m <- cbind(0,1,1,1,0)
+p_beta(x_h_1,z[500,])
+p_beta(x_h_2,z[500,])
+p_beta(x_h_3,z[500,])
+p_beta(x_m,z[500,])
+```
 
 
 4. Grafica las probabilidades estimadas para alguien que subió en Southampton,
@@ -168,21 +192,33 @@ dat_calc <- expand.grid(list ( pclass_n = unique(x_ent[,"pclass_n"]),
                    cherbourg = 0))
 mat_calc <- as.matrix(dat_calc)
 ## rellena aquí las betas que obtuviste
-beta <-
+beta <- z[500,]
 # calcula las probabilidades (puedes usar la fucnión p_beta, por ejemplo)
-dat_calc$p_surv <- 
+dat_calc$p_surv <- p_beta(mat_calc,beta)
 ggplot(dat_calc, aes(x = age_n, y = p_surv, colour= pclass_n, group=pclass_n)) +
     facet_wrap(~female) + geom_line() + ylim(c(0, 1)) +
     labs(title = "Probabilidades superviviencia (Pasajeros de Southampton)")
 ```
 
 ¿Cuáles son las probabilidades más altas? ¿Cuáles son las más bajas?
+# Las probabilidades de supervivencia más altas corresponden a mujeres de primera clase
 
 
 5. ¿Cuál de los dos modelos anteriores (una sola variable, todas las variables)
 se desempeña mejor? ¿Por qué?
+# Varias variables, la devianza es menor
+
 
 6. Calcula el error de clasificación de prueba 
+```{r}
+#p_beta(x_pr,z[500,])
+prueba$p_est <- p_beta(x_pr,z[500,])
+prueba <- prueba %>% 
+          mutate(Survived_est = ifelse(prueba$p_est <= 0.5,0,1))
+prueba <- prueba %>%
+          mutate(err_clas = ifelse(prueba$Survived == prueba$Survived_est,0,1))
+mean(prueba$err_clas)
+```
 
 
 ### Ejercicio C
@@ -200,7 +236,7 @@ n_ent <- nrow(x_ent)
 n_pr <- nrow(x_pr)
 mat_ent <- matrix(runif(n_ent * p_ruido), n_ent, p_ruido)
 mat_pr <- matrix(runif(n_pr * p_ruido), n_pr, p_ruido)
-head(mat_ent)
+#head(mat_ent)
 ```
 
 1. Ajusta un modelo usando todas las variables, incluyendo
@@ -210,14 +246,20 @@ las generadas aleatoriamente:
 devianza_ent <- devianza_calc(cbind(x_ent, mat_ent), y_ent)
 grad_ent <- grad_calc(cbind(x_ent, mat_ent), y_ent)
 ## termina esta línea
-z <- descenso()
+set.seed(300)
+z_ini <- c(0,-2,-2,1,2,0.2,runif(50,0,1))
+z <- descenso(600,z_ini,0.0001,grad_ent)
+tail(z)
 ```
 
 2. Calcula ahora la devianza de prueba de este modelo
 
 ```{r}
 devianza_pr <- devianza_calc(cbind(x_pr, mat_pr), y_pr)
-devianza_pr()
+devianza_pr(z[600,]) ##165.3291
+devianza_pr(z[600,])/nrow(x_pr) ##0.8266454 (50 variables) vs ## 0.7786637 (6 variables)
+devianza_ent(z[600,]) ## 461.8003
+devianza_ent(z[600,])/nrow(x_ent) ## 0.9019537 
 ```
 
 Prueba utilizando otras semillas. Contesta:
@@ -225,11 +267,59 @@ Prueba utilizando otras semillas. Contesta:
 - ¿Cómo es la devianza de prueba
 de el modelo con las variables ruidosas en comparación al modelo con
 las seis variables originales?
+# La devianza de prueba es mayor para el modelo de 50 variables ruidosas
+# Al principio las variables no estaban convergiendo, y obtenía una devianza mucho mayor,
+después reduje el tamaño del salto a 0.001 y la desvianza era solo un poco mayor a la devianza con las 6 variables
+
+
 - ¿Podría ser que la devianza de prueba fuera un poco mejor para el modelo
 ruidoso?¿Por qué sí o por qué no?
+
+
+
 - ¿Cómo se compara la devianza de *entrenamiento* del modelo con 6 variables
 con el modelo con todas las variables ruidosas?
+# el error de entrenamiento es comparable (3 variables vs 50 variables), el modelo más pequeño está contenido en el modelo de minimización de 50 variables
+```{r}
+devianza_ent(z[600,]) # 461.8003 -- 50 variables ruidosas
+devianza_ent(z[600,])/nrow(x_ent) ## 0.9019537 -- 50 variables ruidosas 
+## 0.9543389 --devianza entrenamiento (6 variables)
+```
 
 
 3. Haz pruebas agregando 2 o 3 variables ruidosas. ¿Qué tan grande es la diferencia
 entre la evaluación de los modelos?
+
+```{r}
+set.seed(100)
+p_ruido <- 3 # agregamos 3 variables sin información
+n_ent <- nrow(x_ent)
+n_pr <- nrow(x_pr)
+mat_ent <- matrix(runif(n_ent * p_ruido), n_ent, p_ruido)
+mat_pr <- matrix(runif(n_pr * p_ruido), n_pr, p_ruido)
+#head(mat_ent)
+```
+
+1. Ajusta un modelo usando todas las variables, incluyendo
+las generadas aleatoriamente:
+
+```{r}
+devianza_ent <- devianza_calc(cbind(x_ent, mat_ent), y_ent)
+grad_ent <- grad_calc(cbind(x_ent, mat_ent), y_ent)
+## termina esta línea
+set.seed(300)
+z_ini <- c(0,-2,-2,1,2,0.2,runif(3,0,1))
+z <- descenso(600,z_ini,0.0001,grad_ent)
+z[590:600,]
+```
+
+
+```{r}
+devianza_pr <- devianza_calc(cbind(x_pr, mat_pr), y_pr)
+devianza_pr(z[600,]) ##159.9205 --devianza 3 variables ruidosas
+devianza_pr(z[600,])/nrow(x_pr) ##0.7996024 (3 variables) vs ## 0.7786637 (6 variables)
+devianza_ent(z[600,]) ## 491.6203
+devianza_ent(z[600,])/nrow(x_ent) ## 0.9601959 (3 variables) vs  
+## 0.9543389 --devianza entrenamiento (6 variables)
+```
+

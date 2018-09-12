@@ -7,7 +7,7 @@ theme_set(theme_minimal())
 ```
 
 En esta parte presentamos tecnicas adicionales para evaluar el 
-desempe�o de un modelo. En la parte anterior vimos que
+desempe?o de un modelo. En la parte anterior vimos que
 
 - La **devianza** es una buena medida para ajustar y evaluar el desempeño de un modelo y 
 comparar modelos, y utiliza las probabilidades de clase. Sin embargo, es una medida de dificil de interpretar en cuanto 
@@ -147,6 +147,15 @@ $$\frac{vp}{vp+fp}=\frac{vp}{pred.pos}$$
 - Valor predictivo negativo
 $$\frac{vn}{fn+vn}=\frac{vn}{pred.neg}$$
 
+**NOTA clase:** generalmente en machine learning se utiliza Sensibilidad (o recall) & Precisión. Y en estadística Especificidad & Valor predictivo negativo.
+Hay que utilizar las dos medidas.
+
+En problemas de clasificación, el porcentage de clasificación correcto depende de las probabilidades de clase.
+Por ejemplo si tenemos 4 clases con esta distribución:
+#1 - 40%, #2 - 20%, #3 - 10%, #4 - 30%. 
+Si todo lo clasficamos en categoría 1, ya tenemos al menos un 40% de clasificación correcto.
+
+**Fin nota**
 
 Dependiendo de el tema y el objetivo hay medidas más naturales que otras:
 
@@ -203,6 +212,7 @@ media_armonica <- function(x){
 media_armonica(c(0.01, 1))
 media_armonica(c(0.5, 0.5))
 ```
+**NOTA clase: 0 <= media armónica <= 1**
 
 - **AUC** (area bajo la curva ROC) que veremos más adelante.
 
@@ -315,6 +325,7 @@ de donde cortamos mostrando la tabla ordenada por probabilidades estimadas
 (incluimos también las covariables para entender qué variables están más
 correlacionadas con las probabilidades):
 ```{r, warnings=FALSE,message=FALSE}
+#install.packages("tabplot")
 library(tabplot)
 mod_1 <- glm(type ~ glu, diabetes_ent, family = 'binomial')
 diabetes_pr$probs_prueba_1 <- predict(mod_1, newdata = diabetes_pr,
@@ -360,7 +371,11 @@ ggplot(clasif_1, aes(x=tasa_falsos_pos, y=sensibilidad,
 domina a $G_1$, pues tiene mejor especificidad y mejor sensibilidad. Entre los clasificadores 0.3, 0.5 y 0.7 de la gráfica, no hay ninguno que domine a otro.
 3. Todos los clasificadores en la diagonal son equivalentes a un clasificador al azar. ¿Por qué? La razón es que si cada vez que vemos un nuevo caso lo clasificamos como positivo con probabilidad $p$ fija y arbitraria. Esto implica que cuando veamos un caso positivo, la probabilidad de ’atinarle’ es de p (sensibilidad), y cuando vemos un negativo, la probabilidad de equivocarnos también es de 1-p (tasa de falsos positivos), por lo que
 la espcificidad es p también. De modo que este clasificador al azar está en la diagonal.
+
+
 4. ¿Qué podemos decir acerca de clasificadores que caen por debajo de la diagonal? Estos son clasificadores particularmente malos, pues existen clasificadores con mejor especificidad y/o sensibilidad que son clasificadores al azar! Sin embargo, se puede construir un mejor clasificador volteando las predicciones, lo que cambia sensibilidad por tasa de falsos positivos.
+**Nota Clase* verificar en que parte de la gráfica quedaría el negativo del clasificadro que está por debajo de la diagonal
+
 5. ¿Cuál de los tres clasificadores es el mejor? En términos de la tasa de incorrectos, el de corte 0.5. Sin embargo, para otros propósitos puede ser razonable escoger alguno de los otros.
 
 ## Perfil de un clasificador binario y curvas ROC
@@ -379,7 +394,10 @@ Vamos a graficar todos los pares (1-especificidad, sensibilidad)
 para cada punto de corte $d$ de estas probabilidades.
 
 ```{r, message=FALSE, warning=FALSE}
+#install.packages("ROCR")
 library(ROCR)
+#diabetes_pr$probs_prueba_1
+
 pred_rocr <- prediction(diabetes_pr$probs_prueba_1, diabetes_pr$type) 
 perf <- performance(pred_rocr, measure = "sens", x.measure = "fpr") 
 graf_roc_1 <- data_frame(tfp = perf@x.values[[1]], sens = perf@y.values[[1]], 
@@ -612,6 +630,7 @@ ggplot(tab_cruzada, aes(x=x, y=y)) + geom_tile(aes(fill = dif_p)) +
 
 Nótese que no corrimos el modelo hasta convergencia. Vamos a hacerlo ahora:
 
+**Note class: early sttopping**
 
 ```{r}
 mod_mult <- multinom(digito ~ ., data = digitos_entrena, MaxNWt=100000, maxit = 500)
