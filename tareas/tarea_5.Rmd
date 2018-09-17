@@ -18,5 +18,108 @@ coeficientes
 - El modelo después de correr hasta convergencia (usa la
  función *multinom*)
  
+### Ejemplo: Clasificación de dígitos con regresión multinomial
+
+```{r}
+digitos_entrena <- read_csv('datos/zip-train.csv')
+digitos_prueba <- read_csv('datos/zip-test.csv')
+names(digitos_entrena)[1] <- 'digito'
+names(digitos_entrena)[2:257] <- paste0('pixel_', 1:256)
+names(digitos_prueba)[1] <- 'digito'
+names(digitos_prueba)[2:257] <- paste0('pixel_', 1:256)
+```
+
+En este ejemplo, usamos la función *multinom* de *nnet*, que usa
+BFGS para hacer la optimización:
+```{r}
+library(nnet)
+mod_mult <- multinom(digito ~ ., data = digitos_entrena, MaxNWt=100000, maxit = 20)
+```
+
+```{r}
+table(predict(mod_mult), digitos_entrena$digito)
+```
+
+```{r}
+coefs <- coef(mod_mult)
+coefs_reng <- coefs[1, , drop =FALSE]
+coefs <- rbind(coefs_reng, coefs)
+coefs[1 , ] <- 0
+dim(coefs)
+beta_df <- coefs[,-1] %>% as.data.frame %>% 
+  mutate(digito = 0:(nrow(coefs)-1)) %>%
+  gather(pixel, valor, contains('pixel')) %>%
+  separate(pixel, into = c('str','pixel_no'), sep='_') %>%
+  mutate(x = (as.integer(pixel_no)-1) %% 16, y = -((as.integer(pixel_no)-1) %/% 16))
+head(beta_df)
+```
+
+
+```{r}
+tab_coef <- beta_df %>% select(digito, x, y, valor)
+tab_coef_1 <- tab_coef
+names(tab_coef_1) <- c('digito_1','x','y','valor_1')
+tab_cruzada <- full_join(tab_coef_1, tab_coef) %>% mutate(dif = valor_1 - valor)
+tab_cruzada <- tab_cruzada %>% group_by(digito, digito_1) %>% 
+  mutate(dif_s = (dif - mean(dif))/sd(dif)) %>%
+  mutate(dif_p = pmin(pmax(dif_s, -2), 2))
+```
+
+```{r}
+ggplot(tab_cruzada, aes(x=x, y=y)) + geom_tile(aes(fill = dif_p)) + 
+  facet_grid(digito_1~digito) + scale_fill_distiller(palette = "Spectral")
+```
+ 
+
+Caso 500 iteraciones 
+
+```{r}
+mod_mult <- multinom(digito ~ ., data = digitos_entrena, MaxNWt=100000, maxit = 500)
+```
+
+
+```{r, cache = TRUE}
+
+confusion_prueba <- table(predict(mod_mult, newdata = digitos_prueba), digitos_prueba$digito)
+confusion_prueba
+sum(diag(confusion_prueba))/sum(confusion_prueba)
+round(prop.table(confusion_prueba, 2),2)
+```
+
+```{r, cache = TRUE}
+coefs_2 <- coef(mod_mult)
+coefs_reng_2 <- coefs_2[1, , drop =FALSE]
+coefs_2 <- rbind(coefs_reng_2, coefs_2)
+coefs_2[1 , ] <- 0
+dim(coefs_2)
+beta_df_2 <- coefs_2[,-1] %>% as.data.frame %>% 
+  mutate(digito = 0:(nrow(coefs_2)-1)) %>%
+  gather(pixel, valor, contains('pixel')) %>%
+  separate(pixel, into = c('str','pixel_no'), sep='_') %>%
+  mutate(x = (as.integer(pixel_no)-1) %% 16, y = -((as.integer(pixel_no)-1) %/% 16))
+head(beta_df_2)
+
+```
+
+```{r, cache = TRUE}
+
+tab_coef_2 <- beta_df_2 %>% select(digito, x, y, valor)
+tab_coef_3 <- tab_coef_2
+names(tab_coef_3) <- c('digito_1','x','y','valor_1')
+tab_cruzada_2 <- full_join(tab_coef_3, tab_coef_2) %>% mutate(dif = valor_1 - valor)
+
+```
+
+```{r, cache = TRUE}
+tab_cruzada_2 <- tab_cruzada_2 %>% group_by(digito, digito_1) %>% 
+  mutate(dif_s = (dif - mean(dif))/sd(dif)) %>%
+  mutate(dif_p = pmin(pmax(dif_s, -2), 2))
+
+ggplot(tab_cruzada_2, aes(x=x, y=y)) + geom_tile(aes(fill = dif_p)) + 
+  facet_grid(digito_1~digito) + scale_fill_distiller(palette = "Spectral")
+
+```
+ 
+ 
  Compara las gráficas. ¿Cuál es más interpretable? ¿Puedes ver
  el sobreajuste del segundo modelo en estas gráficas?

@@ -374,7 +374,7 @@ la espcificidad es p también. De modo que este clasificador al azar está en la
 
 
 4. ¿Qué podemos decir acerca de clasificadores que caen por debajo de la diagonal? Estos son clasificadores particularmente malos, pues existen clasificadores con mejor especificidad y/o sensibilidad que son clasificadores al azar! Sin embargo, se puede construir un mejor clasificador volteando las predicciones, lo que cambia sensibilidad por tasa de falsos positivos.
-**Nota Clase* verificar en que parte de la gráfica quedaría el negativo del clasificadro que está por debajo de la diagonal
+**Nota Clase* verificar en que parte de la gráfica quedaría el negativo del clasificador que está por debajo de la diagonal
 
 5. ¿Cuál de los tres clasificadores es el mejor? En términos de la tasa de incorrectos, el de corte 0.5. Sin embargo, para otros propósitos puede ser razonable escoger alguno de los otros.
 

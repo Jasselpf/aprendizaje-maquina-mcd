@@ -105,7 +105,7 @@ grad_ent <- grad_calc(x_ent_1, y_ent)
 
 ## termina esta línea para descenso en gradiente
 z <- descenso(130,c(-0.2,0.2),0.005,grad_ent)
-z[101:130,]
+tail(z)
 #grad_ent(0.2)
 
 glm(Survived ~ cherbourg, data = entrena, family = "binomial" )
@@ -133,6 +133,28 @@ p_beta(0,z[130,])
 # probabilidad si embarcó  en Cherbourg
 p_beta(1,z[130,])
 ```
+
+4. Curva ROC
+
+```{r}
+library(ROCR)
+mod_1 <- glm(Survived ~ cherbourg, entrena, family = "binomial")
+#mod_1
+prueba$probs_prueba_1 <- predict(mod_1, newdata = prueba, type = "response") 
+#tail(x_pr)
+
+pred_rocr <- prediction(prueba$probs_prueba_1, prueba$Survived) 
+perf <- performance(pred_rocr, measure = "sens", x.measure = "fpr") 
+graf_roc_1 <- data_frame(tfp = perf@x.values[[1]], sens = perf@y.values[[1]], 
+                       d = perf@alpha.values[[1]])
+
+ggplot(graf_roc_1, aes(x = tfp, y = sens, colour=d)) + geom_point() +
+  xlab('1-especificidad') + ylab('Sensibilidad') 
+
+auc_1 <- performance(pred_rocr, measure = 'auc')@y.values
+auc_1 #0.5456115
+```
+
 
 
 ### Ejercicio B
@@ -221,6 +243,27 @@ mean(prueba$err_clas)
 ```
 
 
+7. Curva ROC
+
+```{r}
+library(ROCR)
+mod_2 <- glm(Survived ~ pclass_n + age_n +female + southampton + cherbourg, entrena, 
+             family = "binomial")
+
+prueba$probs_prueba_2 <- predict(mod_2, newdata = prueba, type = "response") 
+
+pred_rocr_2 <- prediction(prueba$probs_prueba_2, prueba$Survived) 
+perf_2 <- performance(pred_rocr_2, measure = "sens", x.measure = "fpr") 
+graf_roc_2 <- data_frame(tfp = perf_2@x.values[[1]], sens = perf_2@y.values[[1]], 
+                       d = perf_2@alpha.values[[1]])
+
+ggplot(graf_roc_2, aes(x = tfp, y = sens, colour=d)) + geom_point() +
+  xlab('1-especificidad') + ylab('Sensibilidad') 
+
+auc_2 <- performance(pred_rocr_2, measure = 'auc')@y.values
+auc_2 #0.9053248
+```
+
 ### Ejercicio C
 
 Ahora supondremos que tenemos algunas variables adicionales para incluir en el modelo.
@@ -286,8 +329,8 @@ devianza_ent(z[600,])/nrow(x_ent) ## 0.9019537 -- 50 variables ruidosas
 ## 0.9543389 --devianza entrenamiento (6 variables)
 ```
 
-
-3. Haz pruebas agregando 2 o 3 variables ruidosas. ¿Qué tan grande es la diferencia
+##Ejercicio 4
+1. Haz pruebas agregando 2 o 3 variables ruidosas. ¿Qué tan grande es la diferencia
 entre la evaluación de los modelos?
 
 ```{r}
@@ -300,7 +343,7 @@ mat_pr <- matrix(runif(n_pr * p_ruido), n_pr, p_ruido)
 #head(mat_ent)
 ```
 
-1. Ajusta un modelo usando todas las variables, incluyendo
+2. Ajusta un modelo usando todas las variables, incluyendo
 las generadas aleatoriamente:
 
 ```{r}
@@ -322,4 +365,45 @@ devianza_ent(z[600,]) ## 491.6203
 devianza_ent(z[600,])/nrow(x_ent) ## 0.9601959 (3 variables) vs  
 ## 0.9543389 --devianza entrenamiento (6 variables)
 ```
+
+3. Curva ROC
+
+```{r}
+library(ROCR)
+
+#entrena <- cbind(entrena,mat_ent)
+#colnames(entrena) <- c("Survived","pclass_n","age_n","female","southampton","cherbourg","V1","V2","V3")
+
+#prueba <- cbind(prueba,mat_pr)
+#colnames(prueba) <- cbind("Survived","pclass_n","age_n","female","southampton","cherbourg","probs_prueba_1","p_est","Survived_est","err_clas","probs_prueba_2","V1","V2","V3")
+
+mod_3 <- glm(Survived ~ pclass_n+age_n+female+southampton+cherbourg+V1+V2+V3, entrena, 
+             family = "binomial")
+
+prueba$probs_prueba_3 <- predict(mod_3, newdata = prueba, type = "response") 
+
+pred_rocr_3 <- prediction(prueba$probs_prueba_3, prueba$Survived) 
+perf_3 <- performance(pred_rocr_3, measure = "sens", x.measure = "fpr") 
+graf_roc_3 <- data_frame(tfp = perf_3@x.values[[1]], sens = perf_3@y.values[[1]], 
+                       d = perf_3@alpha.values[[1]])
+
+ggplot(graf_roc_3, aes(x = tfp, y = sens, colour=d)) + geom_point() +
+  xlab('1-especificidad') + ylab('Sensibilidad') 
+
+auc_3 <- performance(pred_rocr_3, measure = 'auc')@y.values
+auc_3 #0.9069986
+```
+
+```{r}
+graf_roc_1$modelo <- 'Solo glucosa'
+graf_roc_2$modelo <- 'Todas las variables'
+graf_roc_3$modelo <- 'Todas las variables + 3(ruido)'
+
+graf_roc <- bind_rows(graf_roc_1, graf_roc_2, graf_roc_3)
+
+ggplot(graf_roc, aes(x = tfp, y = sens, colour = modelo)) + geom_point() +
+  xlab('1-especificidad') + ylab('Sensibilidad') 
+```
+
+
 
