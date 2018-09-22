@@ -70,6 +70,9 @@ ggplot(tab_cruzada, aes(x=x, y=y)) + geom_tile(aes(fill = dif_p)) +
   facet_grid(digito_1~digito) + scale_fill_distiller(palette = "Spectral")
 ```
  
+Para saber en que momento nos debemos detener es necesario monitorear los dos errores:
+* Error de entrenamiento 
+* Error de prueba
 
 Caso 500 iteraciones 
 

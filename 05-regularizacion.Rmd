@@ -86,7 +86,9 @@ ggplot(sims, aes(x=x, y=y)) + geom_point() +
                                  colour = 'red', se = FALSE) + ylim(c(-3,3))
 ```
 
-Podemos ver todos los modelos una misma gráfica y apreciar mejor la
+**Note class** Este caso es malo porque se sobre ajusta a los datos de entrenamiento
+
+Podemos ver todos los modelos en una misma gráfica y apreciar mejor la
 variación entre ellos:
 
 ```{r, fig.width=5, fig.asp=0.7}
@@ -173,6 +175,8 @@ datos <- sim_datos(n = 400, m = 2000, beta = beta)
 ```
 
 Y ahora ajustamos el modelo de regresión logística:
+
+**Note class** Le quitamos el beta cero, porque el modelo original no tiene beta cero
 
 ```{r}
 mod_1 <- glm(y ~ -1 + ., datos %>% filter(entrena) %>% select(-entrena), 
@@ -291,8 +295,7 @@ ggplot(p_prueba, aes(x=prob_hat_1)) +
     geom_point(aes(y=prob_1, colour=factor(clase))) 
 ```
 
-Si la estimación fuera perfecta, 
-esta gráfica sería una diagonal. Vemos entonces
+Si la estimación fuera perfecta, esta gráfica sería una **diagonal**. Vemos entonces
 que 
 
 - Cometemos errores grandes en la estimación de probabilidades. 
@@ -314,15 +317,15 @@ de regresión logística, que es minimizar la devianza:
 
 $$\min_{\beta} D(\beta)$$
 
+**Note class* Optimizacion convexa - revisar
+
 con un problema penalizado
 
 $$\min_{\beta} D(\beta) + \lambda\sum_{i=1}^p \beta_j^2$$
 
 escogiendo un valor apropiado de $\lambda$.  
 
-Si escogemos un valor
-relativamente grande de $\lambda$, entonces terminaremos con una solución
-donde los coeficientes $\beta_j$ no pueden alejarse mucho de 0, 
+Si escogemos un valor relativamente grande de $\lambda$, entonces terminaremos con una solución donde los coeficientes $\beta_j$ no pueden alejarse mucho de 0, 
 y esto previene parte del sobreajuste que observamos en nuestro primer ajuste. Otra manera de decir esto es: intentamos minimizar la devianza, pero no permitimos que los coeficientes se alejen demasiado de cero.
 
 También es posible poner restricciones
@@ -332,6 +335,7 @@ de penalización.
 En este caso obtenemos (veremos más del paquete *glmnet*):
 
 ```{r, warning=FALSE, message=FALSE}
+#install.packages("glmnet")
 library(glmnet)
 mod_restringido <- glmnet(x = x_e, y = dat_e$y, 
   alpha = 0,
@@ -409,7 +413,7 @@ abline(a=0, b=1, col ='gray')
 
 
 
-## Regularización ridge
+## Regularización ridge (o cordillera)
 
 Arriba vimos un ejemplo de regresión penalizada tipo **ridge**. Recordemos
 que para regresión lineal, buscábamos minimizar la cantidad
@@ -529,6 +533,10 @@ ggplot(devianzas_prueba, aes(x = lambda, y= devianza)) +
   geom_point()
 ```
 
+**Note class* Del lado izquierdo es la zona de sobre ajuste o alta varianza.
+Del lado del izqierdo es la zona del sesgo.
+Error de prediccion = sesgo + varianza + error irreducible
+
 Buscamos entonces minimizar la devianza (evaluada en la muestra de prueba),
 que corresponde a tomar un valor de $\lambda$ alrededor de 0.5, por ejemplo
 
@@ -570,6 +578,8 @@ bfat_p <- dat_grasa[101:252,]
 xbf_e <- bfat_e %>% select(estatura, peso, abdomen, muslo, biceps) %>% as.matrix
 cor(xbf_e)
 ```
+
+**Note class** La correlación en las variables afecta o se traduce en un problema de varianza en las betas o estimadores, y eso a su vez produce varianza en las predicciones de $\hat(y)$
 
 Ahora ajustamos varios modelos penalizamos, y observamos qué
 pasa con los coeficientes conforme aumentamos la penalización:
@@ -650,11 +660,14 @@ $$ {\mathcal L}={\mathcal L}_1\cup {\mathcal L}_2\cup\cdots\cup {\mathcal L}_k.$
 knitr::include_graphics("./figuras/div_muestra_cv.png")
 ```
 
+**Note class** El modelo final es el promedio de los 5 (o k) modelos/separaciones.
+El modelo extremo es LOO-CV (leave one out cross validation), si tienes 1000 datos, dejas solo un valor afuera, ajustas un modelo con 999, y validas con el que dejaste afuera.
+
 Construimos $k$ modelos distintos, digamos $\hat{f}_j$, usando solamente
 la muestra ${\mathcal L}-{\mathcal L}_j$, para $j=1,2,\ldots, k$. Cada uno de estos modelos lo evaluamos
 usando la parte que no usamos para entrenarlo, ${\mathcal L}_j$, 
 para obtener una 
-estimación honesta del error del modelo $\hat{f}_k$, a la que denotamos
+estimación honesta del error del modelo $\hat{f}_j$, a la que denotamos
 por $\hat{e}_j$. 
 
 Notemos entonces que tenemos $k$ estimaciones del error
@@ -683,11 +696,14 @@ library(glmnet)
 set.seed(291)
 cv_mod_ridge <- cv.glmnet(x = x_e, y=dat_e$y, 
   alpha = 0,
-  family='binomial', intercept = F, nfolds = 10, nlambda=50)
+  family='binomial', intercept = F, nfolds = 10, nlambda=50) ##nfolds - separaciones
 plot(cv_mod_ridge)
 cv_mod_ridge$lambda.min
 cv_mod_ridge$lambda.1se
 ```
+
+**Note class** Es tradicional escoger lamdas entre las dos rectas inicadas arriba.
+El punto rojo es el promedio de todas las muestras al fijar lambda. Las cajitas indican la varianza de todas las separaciones muestras al fijar lambda.
 
 Nótese que la estimación del error de predicción por validación
 cruzada incluye un error de estimación (intervalos). Esto nos
@@ -715,6 +731,7 @@ ggplot(devs, aes(x=log(lambda), y=devianza, colour=tipo)) +
   geom_point()
 ```
 
+**Note class** Cross validation generalmente se utiliza como metodo para seleccionar hiper-parametros, como lamba.
 
 Vemos que la estimación en algunos casos no es tan buena, aún cuando
 todos los datos fueron usados. Pero el mínimo se encuentra en lugares
@@ -799,10 +816,11 @@ sin embargo, tiene coeficientes para todas las clases ($K(p+1)$ parámetros).
 
 ## Regularización lasso
 
+**Note class** Elastic net = combinacion de ambos metodos --> Lasso y Ridge
 
 Otra forma de regularización es el **lasso**, que en lugar de penalizar
 con la suma de cuadrados en los coeficientes, penaliza por la suma
-de su valor absoluto.
+de su **valor absoluto**.
 
 ```{block2, type='comentario'}
 En regresión **lasso** (lineal/logística), para $\lambda>0$ fija minimizamos
