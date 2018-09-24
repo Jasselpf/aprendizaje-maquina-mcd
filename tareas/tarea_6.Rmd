@@ -109,8 +109,8 @@ lambda
 
 ```{r}
 # completa los parámetros que faltan para ajustar los modelos:
-mod_ridge <- glmnet(y = , x = , alpha = 0, family = "gaussian", 
-                lambda = )
+mod_ridge <- glmnet(y = y_ent, x = x_ent , alpha = 0, family = "gaussian", 
+                lambda = lambda)
 ```
 
 Grafica la traza de los coeficientes:
@@ -120,19 +120,28 @@ plot(mod_ridge, xvar= "lambda")
 ```
 
 - ¿Qué pasa con los coeficientes cuando aumenta el valor de lambda? 
+Todos los coeficientes se acercan al valor 0
 - ¿Todos los coeficientes se acercan siempre al valor 0 cuando aumentamos
-la regularización?
+la regularización? Si
 - ¿Por qué parece ser que los coeficientes tienen valores casi constantes 
-para valores suficientemente bajos de lambda?
+para valores suficientemente bajos de lambda? 
+Son 267 variables, 268 coefiecientes. La mayoría entre -50 y 50
 
 2. Selecciona el valor de regularización usando validación
 cruzada con la función *cv.glmnet*:
 
 ```{r}
 # completa los parámetros que faltan:
-cv_mod_1 <- cv.glmnet(y = , x = , alpha = 0, family = "gaussian",
-                      lambda = , nfolds = )
+cv_mod_1 <- cv.glmnet(y = y_ent, x = x_ent, alpha = 0, family = "gaussian",
+                      lambda = lambda, nfolds = 100)
 plot(cv_mod_1)
+```
+```{r}
+cv_mod_1$lambda.min
+log(cv_mod_1$lambda.min)
+cv_mod_1$lambda.1se
+log(cv_mod_1$lambda.1se)
+lambda
 ```
 
 ¿Qué valores de la regularización dan los errores más bajos 
@@ -141,14 +150,13 @@ plot(cv_mod_1)
 3. Selecciona un modelo con baja regularización, con el valor óptimo
 según validación cruzada, y otro con mucha regularización (utiliza las lambdas
 mostradas abajo).
-Evalúa el
-error de predicción (raíz de error cuadrático media) 
+Evalúa el error de predicción (raíz de error cuadrático media) 
 según la muestra de prueba que separamos arriba:
 
 ```{r}
 # rellena tres valores, uno con muy baja regularización , uno con regularización
 #óptima según validación cruzada, y otro con demasiada regularización:
-lambda_pred <- c(lambda[1] , , )
+lambda_pred <- c(lambda[1] , lambda[14],lambda[21] )
 lambda_pred
 ```
 
@@ -156,20 +164,22 @@ Calcula errores de prueba
 
 ```{r}
 preds_1 <- predict(mod_ridge, newx = x_pr, s = lambda_pred[1])
-preds_2 <-
-preds_3 <- 
+preds_2 <- predict(mod_ridge, newx = x_pr, s = lambda_pred[2])
+preds_3 <- predict(mod_ridge, newx = x_pr, s = lambda_pred[3])
 sqrt(mean((preds_1 - y_pr)^2))
-#
-#
+sqrt(mean((preds_2 - y_pr)^2))
+sqrt(mean((preds_3 - y_pr)^2))
 ```
 
 - ¿Qué modelo tiene el error más bajo de prueba? ¿Por qué esperarías esto?
-
+Los valores de lamba más bajos
 
 Grafica predicciones del modelo con menor error contra los valores observados
 
 ```{r}
-# Haz tu gráfica aquí
+qplot(y_pr - preds_1)
+qplot(y_pr)
+qplot(preds_1)
 ```
 
 
@@ -182,15 +192,19 @@ coefs_reg_baja <- predict(mod_ridge,
                           s = lambda_pred[1], type= "coefficients")
 coefs_reg_baja <- coefs_reg_baja[-1,1] # tomamos la primera columna y quitamos intercept
 # rellena aquí
-coefs_reg_opt <- 
+coefs_reg_opt <- predict(mod_ridge,
+                         s = lambda_pred[2], type = "coefficients")
+coefs_reg_opt <- coefs_reg_opt[-1,1]
     
 # ahora grafica estos coeficientes en una gráfica x-y:
-
+plot(x = coefs_reg_opt, y= coefs_reg_baja, type = "p", col = "blue")
 ```
 
 - ¿Qué puedes decir acerca de la dispersión de los coeficientes del modelo
 con baja regularización en comparación al de regularización media? ¿Cuál
 es el rango de los coeficientes del modelo con baja regularización? 
+Baja regularización - rango[-30,40]
+Regularización optima - rango[-150,100]
 
 5. Compara algunos coeficientes de dos modelos, el de regularización baja con
 uno de regularización óptima según validación cruzada
@@ -199,26 +213,51 @@ Por ejemplo, compara los coeficientes relacionados con el garage (tipo, terminad
 Calidad, Condición, coches y área):
 
 ```{r}
-nombres <- rownames(coefs_reg_baja)
-coef_garage_baja <- coefs_reg_baja[, 1][str_detect(nombres, "Garage")]
+nombres <- names(coefs_reg_baja)
+#str_detect(nombres, "Garage")
+coef_garage_baja <- coefs_reg_baja[str_detect(nombres, "Garage")]
 coef_garage_baja
 ```
 
 - ¿Qué efecto puede tener esta variable en tus predicciones? Considera que el tamaño
 de los coeficientes está en miles de dólares,
+Si no tiene algún tipo de garage, tiene un impacto negativo para el precio
+
+Garage Quality - No tienen sentido, GarageQualGd tiene coeficiente más negativo que GarageQualNA o GarageQualPo
+Garage Condition - Los coeficientes tienen sentido
+
 - ¿Cuál es el valor mediano de las casas en el conjunto de entrenamiento (y)? ¿Los
 efectos del inciso anterior te parecen razonables?
 
+```{r}
+mean(y_ent)
+```
+
+
+```{r}
+coef_neighborhood_baja <- coefs_reg_baja[str_detect(nombres, "Neighborhood")]
+coef_neighborhood_baja
+max(coef_neighborhood_baja)
+min(coef_neighborhood_baja)
+```
+El coeficiente para Neighborhood con mayor inpacto negativo: ClearCr - Clear Creek
+El coeficiente para Neighborhood con mayor inpacto positivo: StoneBr - Stone Brook
 
 Repite para regularización óptima según validación cruzada:
 
 ```{r}
 # calcula para los coeficientes del modelo más regularizado
-
+coef_garage_opt <- coefs_reg_opt[str_detect(nombres, "Garage")]
+coef_garage_opt
 ```
 
 - ¿Qué efecto puede tener esta variable en tus predicciones? Considera que el tamaño
 de los coeficientes está en miles de dólares?
+
+Para el tipo de garage, el coeficiente mayor es GarageTypeBuiltIn, mientras que en el ejemplo anterior era GarageTypeCarPort
+
+Garafe quality sigue sin tener sentido, o ser coherente
+
 - ¿Cuál es el valor mediano de las casas en el conjunto de entrenamiento (y)? ¿Los
 efectos del inciso anterior te parecen razonables?
 
