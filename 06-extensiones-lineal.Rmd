@@ -400,6 +400,8 @@ mod_6 <- lm(SalePrice ~  OverallQual + I(OverallQual^2) + GrLivArea + TotalBsmtS
 calc_error(mod_6, casas_p, "SalePrice")
 ```
 
+**Note Class** nse = root mean square error
+
 ## Categorización de variables
 
 
@@ -440,7 +442,7 @@ incrementar el número de cortes.
 - Nótese que cuando hacemos estas categorizaciones estamos incrementando el 
 número de parámetros a estimar del modelo (si hacemos tres cortes, por ejemplo, aumentamos
 en 3 el número de parámetros).
-
+**Note** redicir sezgo al agregar variables
 
 ```{block2, type='comentario'}
 Las categorizaciones de variables son útiles cuando sabemos que hay efectos
@@ -465,6 +467,8 @@ ggplot(dat_wage) + geom_point(aes(x=age, y=wage)) +
   geom_line(aes(x=age, y=pred_wage), colour = 'red', size=1.1)
 
 ```
+
+**Note class** Feature ingeneering - agregar nuevas variables que dependan de las originales
 
 Estas dos técnicas para hacer más flexible el modelo lineal tienen
 algunas deficiencias:

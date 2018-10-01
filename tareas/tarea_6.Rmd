@@ -109,6 +109,7 @@ lambda
 
 ```{r}
 # completa los parámetros que faltan para ajustar los modelos:
+#glmnet acepta matrizes, no data.frame
 mod_ridge <- glmnet(y = y_ent, x = x_ent , alpha = 0, family = "gaussian", 
                 lambda = lambda)
 ```
@@ -122,7 +123,11 @@ plot(mod_ridge, xvar= "lambda")
 - ¿Qué pasa con los coeficientes cuando aumenta el valor de lambda? 
 Todos los coeficientes se acercan al valor 0
 - ¿Todos los coeficientes se acercan siempre al valor 0 cuando aumentamos
-la regularización? Si
+la regularización? No, hay un factor que con lambda = 0, incrementó su valor
+Descenso coordinado, 
+
+##Note## Cnvex optimization - Boyd
+
 - ¿Por qué parece ser que los coeficientes tienen valores casi constantes 
 para valores suficientemente bajos de lambda? 
 Son 267 variables, 268 coefiecientes. La mayoría entre -50 y 50
@@ -136,6 +141,9 @@ cv_mod_1 <- cv.glmnet(y = y_ent, x = x_ent, alpha = 0, family = "gaussian",
                       lambda = lambda, nfolds = 100)
 plot(cv_mod_1)
 ```
+El valor de lambda 1se se escoje porque es mas parsimoniozo, mas regularizado.
+El numero 251 indica que hay variables en cero.
+
 ```{r}
 cv_mod_1$lambda.min
 log(cv_mod_1$lambda.min)
@@ -169,17 +177,19 @@ preds_3 <- predict(mod_ridge, newx = x_pr, s = lambda_pred[3])
 sqrt(mean((preds_1 - y_pr)^2))
 sqrt(mean((preds_2 - y_pr)^2))
 sqrt(mean((preds_3 - y_pr)^2))
+mean(y_ent)
 ```
 
 - ¿Qué modelo tiene el error más bajo de prueba? ¿Por qué esperarías esto?
 Los valores de lamba más bajos
+La validacion cruzada
 
 Grafica predicciones del modelo con menor error contra los valores observados
 
 ```{r}
-qplot(y_pr - preds_1)
+qplot(y_pr - preds_2)
 qplot(y_pr)
-qplot(preds_1)
+qplot(preds_2)
 ```
 
 
@@ -211,6 +221,8 @@ uno de regularización óptima según validación cruzada
 
 Por ejemplo, compara los coeficientes relacionados con el garage (tipo, terminados,
 Calidad, Condición, coches y área):
+
+Regularizamos para reducir varianza.
 
 ```{r}
 nombres <- names(coefs_reg_baja)
@@ -256,7 +268,7 @@ de los coeficientes está en miles de dólares?
 
 Para el tipo de garage, el coeficiente mayor es GarageTypeBuiltIn, mientras que en el ejemplo anterior era GarageTypeCarPort
 
-Garafe quality sigue sin tener sentido, o ser coherente
+Garage quality sigue sin tener sentido, o ser coherente
 
 - ¿Cuál es el valor mediano de las casas en el conjunto de entrenamiento (y)? ¿Los
 efectos del inciso anterior te parecen razonables?

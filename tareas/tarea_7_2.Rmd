@@ -17,7 +17,7 @@ h <- function(x){
 }
 x <- seq(-2,2,0.05)
 p <- h(3 + x- 3 * x ^ 2 + 3 * cos(4 * x))
-set.seed(280572)
+set.seed(100)
 x.2 <- runif(300, -2, 2)
 g.2 <- rbinom(300, 1, h(3 + x.2 - 3 * x.2 ^ 2 + 3 * cos(4 * x.2)))
 datos <- data.frame(x.2,g.2)

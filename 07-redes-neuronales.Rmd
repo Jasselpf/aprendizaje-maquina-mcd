@@ -57,6 +57,8 @@ condicional es el mismo que el de regresión logística (combinaciones lineales
 de combinaciones lineales son combinaciones lineales). Sin embargo, al 
 transformar con $h$, las $x_j$ contribuyen de manera no lineal a las
 entradas derivadas.
+**Note** se puede usar cualquier otra funcion no linea, tangente por ejemplo
+
 - Las variables $a_k$ que se pueden obtener son similares (para una variable de entrada)
 a los I-splines que vimos en la parte anterior.
 - Es posible demostrar que si se crean suficientes entradas derivadas
@@ -266,6 +268,8 @@ geom_line(data = dat_p, aes(x = x, y = p), col='red') +ylim(c(0,1))+
 y obtenemos un ajuste mucho más estable. Podemos también usar
 la función *nnet* del paquete *nnet*. Ojo: en *nnet*,
 el error es la devianza no está normalizada por número de casos y dividida entre dos:
+
+**Note** entropy = T, es para regresion logistica?? (verificar)
 
 ```{r}
 library(nnet)
