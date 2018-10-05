@@ -719,7 +719,7 @@ Adicionalmente, como
 $$a_j^{(l+1)} = h(z_j^{(l+1)}) = h\left (\sum_{k=0}^{n_{l}}  \theta_{j,k}^{(l)}  a^{(l)}_k \right )$$
 y las $a_k^{(l)}$ no dependen de $\theta_{j,k}^{(l)}$, tenemos por la regla de la cadena que
 \begin{equation}
-\frac{\partial a_j^{(l)}}{\partial \theta_{j,k}^{(l)} } = h'(z_j^{(l+1)})a_k^{(l)}.
+\frac{\partial a_j^{(l+1)}}{\partial \theta_{j,k}^{(l)} } = h'(z_j^{(l+1)})a_k^{(l)}.
 \end{equation}
 
 Esta última expresión podemos calcularla pues sólo requiere la derivada de $h$ y 
@@ -772,10 +772,13 @@ conocemos por backpropagation.
 #### Paso 3: Simplificación de la recursión {-}
 
 
-Denotaremos
-$$\delta_s^{ (l+1)}=\frac{\partial D}{\partial a_s^{(l+1)}} h'(z_s^{(l+1)})$$
+\begin{equation}
+\delta_s^{ (l+1)}=\frac{\partial D}{\partial a_s^{(l+1)}} h'(z_s^{(l+1)})
+  (\#eq:delta-def-a)
+\end{equation}
 
 de manera que la ecuación recursiva es
+
 \begin{equation}
 \frac{\partial D}{\partial a_j^{(l)}} = \sum_{s=1}^{n_{l+1}}
 \delta_s^{(l+1)}\theta_{s,j}^{(l)}.
@@ -803,8 +806,8 @@ $$\delta_1^{(L)}=p - y.$$
 
 #### Paso 5: Cálculo de parciales {-}
 
-Finalmente, usando \@ref(eq:parcial), obtenemos
-$$\frac{\partial D}{\partial \theta_{j,k}^{(l+1)}} = \delta_j^{(l+1)}a_k^{(l)},$$
+Finalmente, usando \@ref(eq:parcial) y \@ref(eq:delta-def-a) , obtenemos
+$$\frac{\partial D}{\partial \theta_{j,k}^{(l)}} = \delta_j^{(l+1)}a_k^{(l)},$$
 
 y con esto ya podemos hacer backpropagation para calcular el gradiente
 sobre cada caso de entrenamiento, y solo resta acumular para obtener el gradiente
@@ -980,7 +983,7 @@ modelo_tc %>%
               kernel_regularizer = regularizer_l2(l = 1e-3), 
               kernel_initializer = initializer_random_uniform(minval = -0.5, maxval = 0.5)) %>%
   layer_dense(units = 1, activation = 'sigmoid',
-              kernel_regularizer = regularizer_l2(l = 1e-4),
+              kernel_regularizer = regularizer_l2(l = 1e-3),
               kernel_initializer = initializer_random_uniform(minval = -0.5, maxval = 0.5)
 )
 ```
@@ -1004,7 +1007,7 @@ iteraciones <- modelo_tc %>% fit(
   x_ent_s, y_ent, 
   #batch size mismo que nrow(x_ent_s) es descenso en grad.
   epochs = 1000, batch_size = nrow(x_ent_s), 
-  verbose = 0,
+  verbose = 1,
   validation_data = list(x_valid_s, y_valid)
 )
 ```
