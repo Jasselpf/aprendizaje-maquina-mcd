@@ -79,6 +79,23 @@ geom_line(data = dat.p, aes(x = x, y = p), col='red') +ylim(c(0,1))+
 - ¿Cuántas variables derivadas $a_k$ utilizaste? Intenta usar el mínimo posible.
 - A grandes rasgos, ¿puedes capturar todos los movimientos de la función verdadera $p$ con esta muestra de entrenamiento? Explica por qué si puedes o por qué no.
 
+```{r}
+#Decay - indica regularizacion
+#entropy = T - es para utilizar devianza
+library(nnet)
+set.seed(12)
+nn <- nnet(g.2 ~ x.2, data = datos, size = 8, decay = 0.005, entropy = T)
+nn$wts
+nn$value
+```
+
+```{r}
+2*nn$value/30
+dev(nn$wts) 
+qplot(x, predict(nn, newdata=data.frame(x.2 = x)), geom='line')
+```
+
+
 ## Parte 2
 
 1. Instala el paquete keras de R en tu computadora. Sigue [estas instrucciones](https://keras.rstudio.com). 

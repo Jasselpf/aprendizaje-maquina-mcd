@@ -638,6 +638,7 @@ $$a^{(L)} = p = \Theta^{(L-1)}a^{(L-1)}$$
 
 
 ## Backpropagation: cálculo del gradiente (clasificación binaria)
+**Note** Back propagation - se utiliza para calcular el gradiente de la red, para posteriormente minimizar la devianza
 
 Más adelante, para ajustar los pesos y sesgos de las redes (valores $\theta$),
 utilizaremos descenso en gradiente y otros algoritmos derivados del gradiente
@@ -688,6 +689,7 @@ que coordenada a coordenada se escribe como
 $$z^{(l+1)}_j =  \sum_{k=0}^{n_{l}}  \theta_{j,k}^{(l)}  a^{(l)}_k$$
 
 #### Paso 1: Derivar respecto a capa $l+1$ {-}
+**Note class** Ya determinadas las variables de una capa, los valores de las capas anteriores ya no importan, las variables de las capas posteriores se pueden determinar de las variables determinadas. 
 
 Como los valores de cada capa determinan los valores de salida y la devianza,
 podemos escribir (recordemos que $a_0^{(l)}=1$ es constante):
@@ -971,7 +973,7 @@ modelo_tc <- keras_model_sequential()
 # no es necesario asignar a nuevo objeto, modelo_tc es modificado al agregar capas
 modelo_tc %>% 
   layer_dense(units = 10, activation = 'sigmoid', 
-              kernel_regularizer = regularizer_l2(l = 1e-3), 
+              kernel_regularizer = regularizer_l2(l = 1e-3), #regularizer_l2 es ridge
               kernel_initializer = initializer_random_uniform(minval = -0.5, maxval = 0.5),
               input_shape=7) %>%
   layer_dense(units = 10, activation = 'sigmoid', 
