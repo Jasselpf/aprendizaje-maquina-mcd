@@ -974,11 +974,13 @@ Para definir la arquitectura de dos capas con:
 set.seed(923)
 modelo_tc <- keras_model_sequential() 
 # no es necesario asignar a nuevo objeto, modelo_tc es modificado al agregar capas
+# Modelo loss - estamos minimizando la devianza con los pesos penalizados
+# Modelo binary cross-entropy, solo se reduce la devianza
 modelo_tc %>% 
   layer_dense(units = 10, activation = 'sigmoid', 
               kernel_regularizer = regularizer_l2(l = 1e-3), #regularizer_l2 es ridge
               kernel_initializer = initializer_random_uniform(minval = -0.5, maxval = 0.5),
-              input_shape=7) %>%
+              input_shape=7) %>% #variables iniciales
   layer_dense(units = 10, activation = 'sigmoid', 
               kernel_regularizer = regularizer_l2(l = 1e-3), 
               kernel_initializer = initializer_random_uniform(minval = -0.5, maxval = 0.5)) %>%
@@ -995,7 +997,7 @@ en tensorflow:
 ```{r}
 modelo_tc %>% compile(
   loss = 'binary_crossentropy',
-  optimizer = optimizer_sgd(lr = 0.8),
+  optimizer = optimizer_sgd(lr = 0.8),  
   metrics = c('accuracy','binary_crossentropy'))
 ```
 
@@ -1005,7 +1007,7 @@ Iteramos con descenso en gradiente y monitoreamos el error de validación. Hacem
 ```{r}
 iteraciones <- modelo_tc %>% fit(
   x_ent_s, y_ent, 
-  #batch size mismo que nrow(x_ent_s) es descenso en grad.
+  #batch size mismo que nrow(x_ent_s) es descenso en gradiente.
   epochs = 1000, batch_size = nrow(x_ent_s), 
   verbose = 1,
   validation_data = list(x_valid_s, y_valid)
@@ -1038,8 +1040,8 @@ en *Tensorflow* (que es lo que usa keras para hacer los cálculos):
 iteraciones <- modelo_tc %>% fit(
   x_ent_s, y_ent, 
   #batch size mismo que nrow(x_ent_s) es descenso en grad.
-  epochs = 500, batch_size = nrow(x_ent_s), 
-  verbose = 0,
+  epochs = 500, batch_size = nrow(x_ent_s), #numero de iteraciones epochs = 500
+  verbose = 0, #verbose = 1, muestra los resultados en consola
   callbacks = callback_tensorboard("logs/diabetes/run_1"),
   validation_data = list(x_valid_s, y_valid)
 )
