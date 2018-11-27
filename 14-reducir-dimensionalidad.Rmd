@@ -242,7 +242,7 @@ optim_decomp <- optim(rep(0.1, 5 + 3), error, method ='BFGS')
 ```
 
 ```{r}
-v_años <- optim_decomp$par[1:3]
+v_anos <- optim_decomp$par[1:3]
 u_rubros <- optim_decomp$par[4:8]
 ```
 
@@ -250,7 +250,7 @@ u_rubros <- optim_decomp$par[4:8]
 La matriz $X_1=uv^t$ que obtuvimos es:
 
 ```{r}
-X_1 <- tcrossprod(u_rubros, v_años)
+X_1 <- tcrossprod(u_rubros, v_anos)
 round(X_1, 1)
 ```
 
@@ -276,7 +276,7 @@ un ordenamiento de años según su nivel general de gasto.
 
 ```{r}
 data_frame(rubro = rownames(X_arr), nivel = u_rubros) %>% arrange(desc(nivel))
-data_frame(año = colnames(X_arr), nivel = v_años)
+data_frame(ano = colnames(X_arr), nivel = v_anos)
 ```
 
 - Pudimos explicar estos datos usando esos dos índices (5+3=7 números) en lugar
@@ -526,27 +526,27 @@ Verifiquemos en el ejemplo del gasto en rubros. Si comparamos $Xv$ con $u$, vemo
 que son colineales (es decir, $Xv=\sigma u$):
 ```{r}
 # qplot(Xv, u), si Xv=sigma*u entonces Xv y u deben ser proporcionales
-qplot(as.matrix(X_arr) %*% v_años, u_rubros) + geom_smooth(method='lm')
+qplot(as.matrix(X_arr) %*% v_anos, u_rubros) + geom_smooth(method='lm')
 ```
 
 Y también
 ```{r}
 # qplot(u^tX, v^t), si u^tXv=sigma*v entonces Xv y u deben ser proporcionales
-qplot(t(as.matrix(X_arr)) %*% u_rubros, (v_años) ) + geom_smooth(method='lm')
+qplot(t(as.matrix(X_arr)) %*% u_rubros, (v_anos) ) + geom_smooth(method='lm')
 ```
 
 
 Ahora normalizamos $u$ y $v$ para encontrar $\sigma$:
 ```{r}
 u_rubros_norm <- normalizar(u_rubros)
-v_años_norm <- normalizar(v_años)
-(as.matrix(X_arr) %*% v_años_norm)/u_rubros_norm
+v_anos_norm <- normalizar(v_anos)
+(as.matrix(X_arr) %*% v_anos_norm)/u_rubros_norm
 ```
 
 Y efectivamente vemos que $(u,v)$ (normalizados) forman satisfacen las ecuaciones mostradas arriba,
 con $\sigma$ igual a:
 ```{r}
-first((as.matrix(X_arr) %*% v_años_norm)/u_rubros_norm)
+first((as.matrix(X_arr) %*% v_anos_norm)/u_rubros_norm)
 
 ```
 
