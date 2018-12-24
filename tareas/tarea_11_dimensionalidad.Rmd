@@ -8,8 +8,10 @@ output: html_notebook
 y un vector $v$ que representa valores asociados para las variables ($p$).
 
 ```{r}
+# n = 5, p = 3 variables
 u <- c(0,1,2,4,5)
 v <- c(0.5,1,5)
+t(v)
 ```
 
 Si $sigma = 10$, calcula la matriz de datos $n\times p$ generada por la matriz
@@ -17,14 +19,18 @@ de rango 1  $\sigma u v^t$.
 
 ```{r}
 # completa el código
-X_1 <- 
+sig <- 10
+X_1 <- sig * tcrossprod(u , v)
 X_1
 ```
 ¿Cómo describirías esta matriz de datos en términos de las columnas? ¿En términos 
 de los renglones?
+En términos de las columnas, y renglones los datos pareciera que se duplican 
+
 
 2. Si $X_1$ es la matriz que obtuviste en el inciso anterior, agrega ruido:
 ```{r}
+set.seed(6382)
 X <- X_1 + matrix(rnorm(15*3, 0, 0.1), 5, 3)
 X
 ```
@@ -34,7 +40,8 @@ optimizando directamente si quieres):
 
 ```{r}
 # completa el código
-svd_1 <- 
+svd_1 <- svd(X)
+svd_1
 ```
 
 - Identifica las columnas de $U$ y $V$ en la salida de *svd* que corresponden a los vectores que usamos para construir $X_1$,
@@ -44,13 +51,38 @@ de la función *svd*?
 
 4. Argumenta con la salida de *svd* que las aproximaciones de rango 2 y rango 3 son
 no aportan mucho sobre la de rango 1. 
+El primer valor singular (en d) es 347, los otros dos valores singulares solo representan el 0.07% (0.00077)
 
-- Verifica comparando matrices 
-que las aproximaciones de rango 1 y rango 2
-son muy similares. 
+- Verifica comparando matrices que las aproximaciones de rango 1 y rango 2 son muy similares. 
+
+```{r}
+library(tidyverse)
+v_new <- svd_1$v
+u_new <- svd_1$u
+sigma <- svd_1$d
+
+sigma
+u_new
+v_new
+
+X_ran_1 <- (sigma[1]*tcrossprod(u_new[,1], v_new[,1])) %>% round(1)
+X_ran_2 <- (sigma[1]*tcrossprod(u_new[,1], v_new[,1])) %>% round(1) + (sigma[2]*tcrossprod(u_new[,2], v_new[,2])) %>% round(1)
+
+X_ran_1
+X_ran_2
+
+```
+
 
 - Verifica calculando la distancia Frobenius entre la aproximación de rango 1 y 2 y
 la matriz original, usando los valores singulares ($\sigma$).
+```{r}
+1 - (sum(X^2) - sum(sigma[1]^2))/sum(X^2)
+1 - (sum(X^2) - sum(sigma[1:2]^2))/sum(X^2)
+
+sum((X - X_ran_1)^2)
+sum((X - X_ran_2)^2)
+```
 
 
 5. Considera los siguientes datos de gasto por decil en distintos tipos de alimentos
@@ -59,19 +91,32 @@ Nota: estos datos son de 2010/2008)
 ```{r}
 library(readr)
 deciles <- read_csv('../datos/enigh_deciles.csv')
-deciles
+
 ```
 
 6. Calcula la primera dimensión usando la función svd. ¿Qué explica esta dimensión? 
 (Nota: puedes cancelar signos de $u$ y $v$ para hacer más fácil la interpretación) 
 
 ```{r}
-#
-#
-#
-#
-#
+summary(deciles)
+svd_deciles <- svd(scale(deciles[,2:11]))
+svd_deciles
 ```
+
+```{r}
+u_deciles <- svd_deciles$u
+v_deciles <- svd_deciles$v
+sigma_deciles <- svd_deciles$d
+
+sigma_deciles[1]
+#u_deciles[,1]
+#v_deciles[,1]
+
+X_deciles_ran_1 <- (sigma_deciles[1]*tcrossprod(u_deciles[,1], v_deciles[,1])) %>% round(1)
+rownames(X_deciles_ran_1) <- deciles$Articulo
+X_deciles_ran_1
+```
+
 
 7. Ahora considera la segunda dimensión
 
@@ -79,17 +124,23 @@ deciles
 tiene valores positivos? ¿para qué deciles tiene valores negativos?
 
 ```{r}
-#
+v_deciles[,2]
+#v_deciles
+#data_frame(t(deciles[,"Articulo"]),v_deciles[,2])
+t(deciles[,"Articulo"])
 ```
+Positivos
+"CEREALES" "CARNES" "PESCADOS Y MARISCOS" "LECHE Y SUS DERIVADOS" "HUEVO"
 
+Negativos
+"ACEITES Y GRASAS" "TUBERCULOS" "VERDURAS, LEGUMBRES, LEGUMINOSAS" "FRUTAS" "AZUCAR Y MIELES" "CAFE, TE Y CHOCOLATE" "ESPECIAS Y ADEREZOS" "OTROS ALIMENTOS DIVERSOS"
 
 - Ahora considera el vector $u_2$. ¿Para qué rubros tiene valores grandes/chicos?
 ¿Qué explica esta dimensión?
 
 ```{r}
-#
-#
-#
+u_deciles[,2]
+t(deciles[,"Articulo"])
 ```
 
 - Puedes también calcular la siguiente matriz de rango 1, para que te ayude 
@@ -99,8 +150,13 @@ más fácilmente:
 
 ```{r}
 # modifica según el código que escribiste arriba:
-A <- round(svd_deciles$d[2]*tcrossprod(svd_deciles$u[,2], svd_deciles$v[,2])/1e3)
-rownames(A) <- deciles$X1
-A
+sigma_deciles[2]
+X_deciles_ran_2 <- (sigma_deciles[2]*tcrossprod(u_deciles[,2], v_deciles[,2])) %>% round(1)
+
+rownames(X_deciles_ran_2) <- deciles$Articulo
+X_deciles_ran_2
+```
+```{r}
+X_deciles_ran_1 + X_deciles_ran_2
 ```
 
